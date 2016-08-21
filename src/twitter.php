@@ -2,6 +2,8 @@
 
 class Twitter {
   
+  public $requestUrl = 'https://stream.twitter.com/1.1/statuses/filter.json';
+
   private $consumerKey = null;
   private $consumerSecret = null;
 
@@ -10,7 +12,7 @@ class Twitter {
 
   private $track = '';
 
-  private $handle = null; 
+  private $handle = null;
   
   public function __construct($config = array()) {
     if (isset($config['consumerKey'])) {
@@ -34,11 +36,105 @@ class Twitter {
     }
   }
 
+  private function buildSignature($dataArray) {
+    $dataArray['track'] = $this->track;
+    ksort($dataArray);
+
+    $head = array(
+      'GET',
+      rawurlencode($this->requestUrl),
+    );
+
+    foreach ($dataArray as $key => $value) {
+      $terms[] = rawurlencode($key) . '=' . rawurlencode($value);
+    }
+
+    $baseString =
+      implode('&', $head) .
+      '&' .
+      rawurlencode(implode('&', $terms));
+
+    $signingKey =
+      rawurlencode($this->consumerSecret) .
+      '&' .
+      rawurlencode($this->accessSecret);
+
+    return rawurlencode(base64_encode(
+      hash_hmac('SHA1', $baseString, $signingKey, true)
+    ));
+  }
+
+  private function buildOAuthHeader() {
+    $data = array(
+      'oauth_consumer_key' => $this->consumerKey,
+      'oauth_nonce' => md5(rand(1000, 10000)),
+      'oauth_signature_method' => 'HMAC-SHA1',
+      'oauth_timestamp' => time(),
+      'oauth_token' => $this->accessKey,
+      'oauth_version' => '1.0',
+    );
+
+    $data['oauth_signature'] = $this->buildSignature($data);
+
+    ksort($data);
+
+    $headerArray = array();
+
+    foreach ($data as $key => $value) {
+      $headerArray[] = sprintf('%s="%s"', $key, $value);
+
+    }
+
+    return 'OAuth ' . implode(', ', $headerArray);
+  }
+
+  private function buildRequest($url) {
+    
+    $requestTemplate =
+        "GET %s HTTP/1.1\r\n" .
+        "Host: %s\r\n" .
+        "User-Agent: folower-riper 0.1\r\n" .
+        "Authorization: %s\r\n\r\n";
+
+    $oAuthHeader = $this->buildOAuthHeader();
+
+    $request = sprintf(
+      $requestTemplate,
+      $url['path'],
+      $url['host'],
+      $oAuthHeader
+    );
+
+    return $request;
+  }
+
   public function connect() {
-    return false;  
+    $url = parse_url($this->requestUrl);
+    $request = $this->buildRequest($url);
+    $counter = 100;
+
+    $scheme = $url['scheme'] === 'https'?'ssl://':'';
+    $port = $url['scheme'] === 'https'?443:80;
+
+    $this->handle = fsockopen($scheme . $url['host'], $port, $errno, $errstr);
+
+    if (!$this->handle) {
+      echo "$errstr ($errno)\n";
+    } else {
+      fwrite($this->handle, $request);
+
+      while (!feof($this->handle) && $counter) {
+        echo fgets($this->handle, 4096);
+        $counter--;
+      }
+
+      $this->close();
+    }
+
+    return false;
   }
 
   public function close() {
-    return false;  
+    fclose($this->handle);
   }
 }
