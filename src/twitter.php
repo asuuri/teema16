@@ -91,7 +91,7 @@ class Twitter {
   private function buildRequest($url) {
     
     $requestTemplate =
-        "GET %s HTTP/1.1\r\n" .
+        "GET %s?track=%s HTTP/1.1\r\n" .
         "Host: %s\r\n" .
         "User-Agent: folower-riper 0.1\r\n" .
         "Authorization: %s\r\n\r\n";
@@ -101,6 +101,7 @@ class Twitter {
     $request = sprintf(
       $requestTemplate,
       $url['path'],
+      $this->track,
       $url['host'],
       $oAuthHeader
     );
@@ -124,7 +125,7 @@ class Twitter {
       fwrite($this->handle, $request);
 
       while (!feof($this->handle) && $counter) {
-        echo fgets($this->handle, 4096);
+        echo fgets($this->handle, 8192) . "\n\n";
         $counter--;
       }
 
