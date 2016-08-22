@@ -38,6 +38,8 @@ class Twitter {
 
   private function buildSignature($dataArray) {
     $dataArray['track'] = $this->track;
+    $dataArray['delimited'] = 'length';
+
     ksort($dataArray);
 
     $head = array(
@@ -91,7 +93,7 @@ class Twitter {
   private function buildRequest($url) {
     
     $requestTemplate =
-        "GET %s?track=%s HTTP/1.1\r\n" .
+        "GET %s?delimited=length&track=%s HTTP/1.1\r\n" .
         "Host: %s\r\n" .
         "User-Agent: folower-riper 0.1\r\n" .
         "Authorization: %s\r\n\r\n";
@@ -125,14 +127,22 @@ class Twitter {
       fwrite($this->handle, $request);
 
       while (!feof($this->handle) && $counter) {
-        echo fgets($this->handle, 8192) . "\n\n";
+        $length = trim(fgets($this->handle, 20));
+        echo $length . "\n";
+
         $counter--;
+
+        if (preg_match('/^[1-9][0-9]*$/', $length) && false) {
+          $json = fread($this->handle, $length);
+
+          echo $length . ' (' . strlen($json) . ")\n";
+          echo $json . "\n";
+          $counter--;
+        }
       }
 
       $this->close();
     }
-
-    return false;
   }
 
   public function close() {
