@@ -128,15 +128,19 @@ class Twitter {
 
       while (!feof($this->handle) && $counter) {
         $length = trim(fgets($this->handle, 20));
-        echo $length . "\n";
 
-        $counter--;
+        if (preg_match('/^[1-9][0-9]*$/', $length)) {
+          $length = $length + 2;
 
-        if (preg_match('/^[1-9][0-9]*$/', $length) && false) {
-          $json = fread($this->handle, $length);
+          $json = '';
 
-          echo $length . ' (' . strlen($json) . ")\n";
-          echo $json . "\n";
+          while ($length > strlen($json)) {
+            $json .= trim(fread($this->handle, $length - strlen($json)));
+          }
+
+
+          echo 'Len:  ' . $length . ' (' . strlen($json) . ")\n";
+          echo 'Json: ' . $json . "\n";
           $counter--;
         }
       }
