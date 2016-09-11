@@ -9,17 +9,34 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script>
             function newTweet(data) {
+                var text;
                 console.log(data);
-                $div = $('<div/>', {'id': data.id, 'class': 'tweet'});
+                var $div = $('<div/>', {'id': data.id, 'class': 'tweet'});
 
-                $content = $('<span/>', {'class': 'content'});
+                var $content = $('<span/>', {'class': 'content'});
                 if (data.hasOwnProperty('retweeted_status')) {
-                    $content.html(data.retweeted_status.text);
+                    text = data.retweeted_status.text;
                 } else {
-                    $content.html(data.text);
+                    text = data.text;
                 }
 
-                $user = $('<strong/>', {'class': 'user'});
+                $.each(data.entities.hashtags, function(index, hashtag) {
+                    text = text.replace(
+                        '#' + hashtag.text,
+                        '<span class="hashtag">#' + hashtag.text + '</span>'
+                    );
+                });
+
+                $.each(data.entities.user_mentions, function(index, user) {
+                    text = text.replace(
+                        '@' + user.screen_name,
+                        '<span class="mentioned">@' + user.screen_name + '</span>'
+                    );
+                });
+
+                $content.html(text);
+
+                var $user = $('<strong/>', {'class': 'user'});
                 $user.html(data.user.name);
                 $user.append(
                     $(
@@ -31,11 +48,12 @@
                     )
                 );
 
-                $userImage = $(
+                var $userImage = $(
                     '<img/>',
                     {
                         'src': data.user.profile_image_url_https,
-                        'class': 'usrImage'
+                        'class': 'usrImage',
+                        'onload': function () {console.log($div)}
                     }
                 );
 
@@ -45,13 +63,12 @@
                     data.entities.hasOwnProperty('media')) {
                     imgUrl = data.entities.media[0].media_url_https;
 
-                    $mediaImage = $(
+                    var $mediaImage = $(
                         '<img/>',
                         {'src': imgUrl, 'class': 'mediaImage'}
                     );
+                    $div.append($mediaImage);
                 }
-
-                $div.append($mediaImage);
 
                 $('#tweetContainer').prepend($div);
             }

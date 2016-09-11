@@ -13,6 +13,8 @@ body, html {
   margin: 10px 0px;
   border-radius: 12px;
   position: relative; }
+  .tweet .hashtag, .tweet .mentioned {
+    color: #0084B4; }
   .tweet .user {
     display: block; }
     .tweet .user .username {

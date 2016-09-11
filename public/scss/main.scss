@@ -20,6 +20,10 @@ body, html {
     border-radius: 12px;
     position: relative;
 
+    .hashtag, .mentioned {
+        color: #0084B4;
+    }
+
     .user {
         display: block;
 
