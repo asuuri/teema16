@@ -1,0 +1,33 @@
+body, html {
+  min-height: 100%;
+  display: block;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  background-color: #222;
+  overflow: hidden; }
+
+.tweet {
+  color: #222;
+  font-size: 25px;
+  padding: 10px 10px 10px 75px;
+  background-color: #fff;
+  margin: 10px 0px;
+  border-radius: 12px;
+  position: relative; }
+  .tweet .user {
+    display: block; }
+    .tweet .user .username {
+      font-size: 23px;
+      color: #8899a6; }
+  .tweet .usrImage {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    border-radius: 5px; }
+  .tweet .mediaImage {
+    max-height: 200px;
+    display: block;
+    border-radius: 5px;
+    border: 1px solid #bdbdbd;
+    margin: 5px 0; }
+
+/*# sourceMappingURL=main.css.map */

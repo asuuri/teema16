@@ -1,0 +1,47 @@
+$background: #222;
+$tweetBackground: #fff;
+$textColor: #222;
+$userNameColor: #8899a6;
+
+body, html {
+    min-height: 100%;
+    display: block;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    background-color: $background;
+    overflow: hidden;
+}
+
+.tweet {
+    color: $textColor;
+    font-size: 25px;
+    padding: 10px 10px 10px 75px;
+    background-color: $tweetBackground;
+    margin: 10px 0px;
+    border-radius: 12px;
+    position: relative;
+
+    .user {
+        display: block;
+
+        .username {
+            font-size: 23px;
+            color: $userNameColor;
+        }
+    }
+
+    .usrImage {
+        $imgPos: 10px;
+        position: absolute;
+        left: $imgPos;
+        top: $imgPos;
+        border-radius: 5px;
+    }
+
+    .mediaImage {
+        max-height: 200px;
+        display: block;
+        border-radius: 5px;
+        border: 1px solid #bdbdbd;
+        margin: 5px 0;
+    }
+}
