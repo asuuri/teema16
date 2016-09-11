@@ -2,6 +2,9 @@
 
 class Twitter {
   
+  const CRLF = "\r\n";
+  const BUFFER_LENGTH = 8192;
+
   public $requestUrl = 'https://stream.twitter.com/1.1/statuses/filter.json';
 
   private $consumerKey = null;
@@ -10,9 +13,15 @@ class Twitter {
   private $accessKey = null;
   private $accessSecret = null;
 
+  private $localSocket = null;
+  private $localSocketConnection = null;
+
   private $track = '';
 
   private $handle = null;
+
+  private $jsonLength = 0;
+  private $json = '';
   
   public function __construct($config = array()) {
     if (isset($config['consumerKey'])) {
@@ -32,7 +41,12 @@ class Twitter {
     }
 
     if (isset($config['track'])) {
-      $this->track = $config['track'];  
+      $this->track = $config['track'];
+    }
+
+    if (isset($config['local_socket_path'])) {
+        $this->localSocket = stream_socket_server($config['local_socket_path']);
+        $this->localSocketConnection = stream_socket_accept($this->localSocket);
     }
   }
 
@@ -52,8 +66,7 @@ class Twitter {
     }
 
     $baseString =
-      implode('&', $head) .
-      '&' .
+      implode('&', $head) . '&' .
       rawurlencode(implode('&', $terms));
 
     $signingKey =
@@ -126,30 +139,88 @@ class Twitter {
     } else {
       fwrite($this->handle, $request);
 
-      while (!feof($this->handle) && $counter) {
-        $length = trim(fgets($this->handle, 20));
-
-        if (preg_match('/^[1-9][0-9]*$/', $length)) {
-          $length = $length + 2;
-
-          $json = '';
-
-          while ($length > strlen($json)) {
-            $json .= trim(fread($this->handle, $length - strlen($json)));
-          }
-
-
-          echo 'Len:  ' . $length . ' (' . strlen($json) . ")\n";
-          echo 'Json: ' . $json . "\n";
-          $counter--;
-        }
-      }
+      $this->readStream($counter);
 
       $this->close();
     }
   }
 
+  private function readStream($counter) {
+    do {
+        $data = fgets($this->handle, self::BUFFER_LENGTH);
+        if ($data === false || $data == self::CRLF || feof($this->handle)) {
+            break;
+        }
+    } while (true);
+
+    do {
+        $line = fgets($this->handle, self::BUFFER_LENGTH);
+
+        if ($line == self::CRLF) {
+            continue;
+        }
+
+        $length = hexdec($line);
+
+        if (!is_int($length)) {
+            trigger_error('Most likely not chunked encoding', E_USER_ERROR);
+        }
+
+        if ($line === false || $length < 1 || feof($this->handle)) {
+            break;
+        }
+
+        do {
+            $data = fread($this->handle, $length);
+
+            $length -= strlen($data);
+            $this->parseData($data);
+
+            if ($counter > -1) {
+                $counter--;
+            }
+
+            if ($length <= 0 || feof($this->handle) || $counter <= 0) {
+                break;
+            }
+        } while (true);
+        if ($counter == 0) {
+            break;
+        }
+    } while (true);
+  }
+
+  private function parseData($data) {
+        $dataLines = explode("\n", $data);
+        foreach ($dataLines as $dataLine) {
+            if (preg_match('/^[1-9][0-9]*$/', trim($dataLine))) {
+                $this->sendJson();
+                $this->jsonLength = $dataLine - 1;
+                
+            } else {
+                $this->jsonLength -= strlen($dataLine);
+                $this->json .= trim($dataLine);
+            }
+        }
+
+        if ($this->jsonLength <= 0) {
+            $this->sendJson();
+        }
+  }
+
+  private function sendJson() {
+      if ($this->json && $this->localSocketConnection) {
+          fwrite($this->localSocketConnection, $this->json . "\n");
+      }
+      $this->json = '';
+      $this->jsonLength = 0;
+  }
+
   public function close() {
     fclose($this->handle);
+
+    if ($this->localSocket) {
+        fclose($this->localSocket);
+    }
   }
 }
