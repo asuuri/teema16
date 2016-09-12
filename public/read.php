@@ -10,15 +10,16 @@
 
 require_once '../config.php';
 
-$handle = stream_socket_client($config['local_socket_path']);
+$handle = fopen($config['fifo_path'], 'r+');
+//stream_set_blocking($handle, false);
 
 if ($handle) {
     while (($buffer = fgets($handle)) !== false) { ?>
         <script>
         parent.postMessage(<?php
             echo trim($buffer);
-            ob_flush();
-            flush();
+            //ob_flush();
+            //flush();
         ?>, '*');
         </script>
 

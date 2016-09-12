@@ -13,8 +13,7 @@ class Twitter {
   private $accessKey = null;
   private $accessSecret = null;
 
-  private $localSocket = null;
-  private $localSocketConnection = null;
+  private $fifoFile = null;
 
   private $track = '';
 
@@ -44,9 +43,15 @@ class Twitter {
       $this->track = $config['track'];
     }
 
-    if (isset($config['local_socket_path'])) {
-        $this->localSocket = stream_socket_server($config['local_socket_path']);
-        $this->localSocketConnection = stream_socket_accept($this->localSocket);
+    if (isset($config['fifo_path'])) {
+        if (is_file($config['fifo_path'])) {
+            unlink($config['fifo_path']);
+        }
+
+        posix_mkfifo($config['fifo_path'], 0655);
+
+        $this->fifoFile = fopen($config['fifo_path'], "w+");
+        stream_set_blocking($this->fifoFile, false);
     }
   }
 
@@ -209,8 +214,8 @@ class Twitter {
   }
 
   private function sendJson() {
-      if ($this->json && $this->localSocketConnection) {
-          fwrite($this->localSocketConnection, $this->json . "\n");
+      if ($this->json && $this->fifoFile) {
+          fwrite($this->fifoFile, $this->json . "\n");
       }
       $this->json = '';
       $this->jsonLength = 0;
@@ -219,8 +224,8 @@ class Twitter {
   public function close() {
     fclose($this->handle);
 
-    if ($this->localSocket) {
-        fclose($this->localSocket);
+    if ($this->fifoFile) {
+        fclose($this->fifoFile);
     }
   }
 }
