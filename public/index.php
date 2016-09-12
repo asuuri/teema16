@@ -72,8 +72,17 @@
 
                 $('#tweetContainer').prepend($div);
             }
+
+            function watchdog(time) {
+                console.debug(time);
+            }
+
             window.addEventListener('message', function(event) {
-                newTweet(event.data);
+                if (event.data.hasOwnProperty('watchdog')) {
+                    watchdog(event.data.watchdog);
+                } else {
+                    newTweet(event.data);
+                }
             });
         </script>
     </head>

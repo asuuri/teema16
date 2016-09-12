@@ -48,7 +48,7 @@ class Twitter {
             unlink($config['fifo_path']);
         }
 
-        posix_mkfifo($config['fifo_path'], 0655);
+        posix_mkfifo($config['fifo_path'], 0666);
 
         $this->fifoFile = fopen($config['fifo_path'], "w+");
         stream_set_blocking($this->fifoFile, false);

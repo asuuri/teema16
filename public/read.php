@@ -9,17 +9,32 @@
 <?php
 
 require_once '../config.php';
+$time = time();
 
-$handle = fopen($config['fifo_path'], 'r+');
-//stream_set_blocking($handle, false);
+if ($config['fifo_path']) {
+    $handle = fopen($config['fifo_path'], 'r');
+
+    if ($handle) {
+        stream_set_blocking($handle, false);
+    } else {
+        $err = error_get_last();
+        var_dump($err);
+        echo "Unable to open fifo. </body></html>";
+        die;
+    }
+} else {
+    echo "Unable to open fifo. </body></html>";
+    die;
+}
 
 if ($handle) {
-    while (($buffer = fgets($handle)) !== false) { ?>
+    while (true) { 
+        $buffer = fgets($handle); 
+        if ($buffer) { ?>
+        
         <script>
         parent.postMessage(<?php
             echo trim($buffer);
-            //ob_flush();
-            //flush();
         ?>, '*');
         </script>
 
@@ -40,6 +55,38 @@ if ($handle) {
         
         
 <?php
+        }
+
+        //sleep(0.2);
+
+        $newTime = time();
+        if ($newTime - $time >= 1) {
+            $time = $newTime; ?>
+       
+        <script>
+        parent.postMessage({'watchdog':<?php
+            echo $newTime;
+        ?>}, '*');
+        </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+        }
+
+        flush();
     }
 }
 
