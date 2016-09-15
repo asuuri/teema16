@@ -21,7 +21,9 @@ class Twitter {
 
   private $jsonLength = 0;
   private $json = '';
-  
+
+  private $config;
+
   public function __construct($config = array()) {
     if (isset($config['consumerKey'])) {
       $this->consumerKey = $config['consumerKey'];  
@@ -43,25 +45,15 @@ class Twitter {
       $this->track = $config['track'];
     }
 
-    if (isset($config['fifo_path'])) {
-        if (is_file($config['fifo_path'])) {
-            unlink($config['fifo_path']);
-        }
-
-        posix_mkfifo($config['fifo_path'], 0666);
-
-        $this->fifoFile = fopen($config['fifo_path'], "w");
-        stream_set_blocking($this->fifoFile, false);
-    }
+    $this->config = $config;
   }
 
-  private function buildSignature($dataArray) {
-
+  private function buildSignature($dataArray, $url) {
     ksort($dataArray);
 
     $head = array(
       'GET',
-      rawurlencode($this->requestUrl),
+      rawurlencode($url['scheme'] . '://' . $url['host'] . $url['path'] ),
     );
 
     foreach ($dataArray as $key => $value) {
@@ -94,10 +86,10 @@ class Twitter {
 
     if (isset($url['query'])) {
         parse_str($url['query'], $query);
-        $data = array_merge($data, $query);
+        $signatureData = array_merge($data, $query);
     }
 
-    $data['oauth_signature'] = $this->buildSignature($data);
+    $data['oauth_signature'] = $this->buildSignature($signatureData, $url);
 
     ksort($data);
 
@@ -128,16 +120,25 @@ class Twitter {
       $oAuthHeader
     );
 
-    print $request;
-    die;
-
     return $request;
   }
 
+  private function makeFIFO() {
+    if (isset($this->config['fifo_path'])) {
+        if (is_file($config['fifo_path'])) {
+            unlink($config['fifo_path']);
+        }
+
+        posix_mkfifo($config['fifo_path'], 0666);
+
+        $this->fifoFile = fopen($config['fifo_path'], "w");
+        stream_set_blocking($this->fifoFile, false);
+    }
+  }
+
   public function connect() {
-    $this->readFirstOnes();
-    die;
-    $url = parse_url($this->requestUrl . $this->track);
+    $this->makeFIFO();
+    $url = parse_url($this->requestUrl . rawurlencode($this->track));
     $request = $this->buildRequest($url);
     $counter = 100;
 
@@ -157,35 +158,45 @@ class Twitter {
     }
   }
 
-  public function readFirstOnes() {
+  public function readFirstOnes($count = 10) {
+    $queryArray = array(
+      'count' => $count,
+      'result_type' => 'recent',
+      'q' => $this->track,
+    );
+    ksort($queryArray);
+    $query = http_build_query($queryArray);
     $urlStr =
-        'https://api.twitter.com/1.1/search/tweets.json?' .
-        'result_type=recent&count=5&q=' .
-        $this->track;
+        'https://api.twitter.com/1.1/search/tweets.json?' . $query;
     $url = parse_url($urlStr);
 
     $scheme = $url['scheme'] === 'https'?'ssl://':'';
     $port = $url['scheme'] === 'https'?443:80;
 
-    var_dump($this->buildOAuthHeader($url));
-    die;
+    $oAuthHeader = $this->buildOAuthHeader($url);
 
     $curl = curl_init();
     curl_setopt_array(
         $curl,
         array(
+            CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_URL => $urlStr,
             CURLOPT_HTTPHEADER => array(
-                'User-Agent: folower-riper 0.1',
                 'Authorization: ' . $this->buildOAuthHeader($url),
             )
         )
     );
-    $content = curl_exec($curl);
-    curl_close($curl);
-    var_dump($content);
-    die;
 
+    $respondJson = curl_exec($curl);
+    if (curl_getinfo($curl, CURLINFO_HTTP_CODE) === 200) {
+      $respond = json_decode($respondJson, true);
+      curl_close($curl);
+      return $respond['statuses'];
+    }
+
+    curl_close($curl);
+
+    return array();
 
   }
 

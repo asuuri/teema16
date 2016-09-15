@@ -1,7 +1,7 @@
-$background: #222;
+$background: #333;
 $tweetBackground: #fff;
 $textColor: #222;
-$userNameColor: #8899a6;
+$userNameColor: #b1c1ce;
 
 body, html {
     min-height: 100%;
@@ -11,12 +11,18 @@ body, html {
     overflow: hidden;
 }
 
+.hashTag {
+    display: block;
+    color: $tweetBackground;
+    text-align: center;
+}
+
 .tweet {
     color: $textColor;
     font-size: 25px;
-    padding: 10px 10px 10px 75px;
+    padding: 10px;
     background-color: $tweetBackground;
-    margin: 10px 0px;
+    margin: 18px 10px 80px 10px;
     border-radius: 12px;
     position: relative;
 
@@ -25,20 +31,57 @@ body, html {
     }
 
     .user {
-        display: block;
-
-        .username {
-            font-size: 23px;
-            color: $userNameColor;
-        }
+        position: absolute;
+        bottom: -40px;
+        color: $userNameColor;
     }
 
     .usrImage {
         $imgPos: 10px;
         position: absolute;
-        left: $imgPos;
-        top: $imgPos;
+        bottom: -60px;
         border-radius: 5px;
+    }
+
+    .tick {
+        $tickHeight: 48px;
+        display: block;
+        position: absolute;
+        height: $tickHeight;
+        width: 25px;
+        bottom: ($tickHeight - 10px) * -1
+    }
+
+    &.odd {
+        .usrImage {
+            right: 88px;
+        }
+
+        .user {
+            right: 145px;
+        }
+
+        .tick {
+            background: linear-gradient(118deg, white 0%, white 57%, rgba(255, 255, 255, 0) 59%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 0px 0px 0px 2px;
+            right: 50px;
+        }
+    }
+
+    &.even {
+        .usrImage {
+            left: 88px;
+        }
+
+        .user {
+            left: 145px;
+        }
+
+        .tick {
+            background: linear-gradient(240deg, white 0%, white 57%, rgba(255, 255, 255, 0) 59%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 0px 0px 2px 0px;
+            left: 50px;
+        }
     }
 
     .mediaImage {

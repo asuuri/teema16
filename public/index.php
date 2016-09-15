@@ -8,10 +8,14 @@
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script>
+            var isOdd = true;
             function newTweet(data) {
                 var text;
                 console.log(data);
-                var $div = $('<div/>', {'id': data.id, 'class': 'tweet'});
+                var $div = $(
+                    '<div/>',
+                    {'id': data.id, 'class': 'tweet ' + (isOdd?'odd':'even')}
+                );
 
                 var $content = $('<span/>', {'class': 'content'});
                 if (data.hasOwnProperty('retweeted_status')) {
@@ -37,16 +41,7 @@
                 $content.html(text);
 
                 var $user = $('<strong/>', {'class': 'user'});
-                $user.html(data.user.name);
-                $user.append(
-                    $(
-                        '<span/>',
-                        {
-                            'class': 'username',
-                            'html': ' @' + data.user.screen_name
-                        }
-                    )
-                );
+                $user.html('@' + data.user.screen_name);
 
                 var $userImage = $(
                     '<img/>',
@@ -57,7 +52,7 @@
                     }
                 );
 
-                $div.append($userImage, $user, $content);
+                $div.append($userImage, $user, $content, $('<span/>', {'class': 'tick'}));
 
                 if (data.hasOwnProperty('entities') &&
                     data.entities.hasOwnProperty('media')) {
@@ -71,6 +66,7 @@
                 }
 
                 $('#tweetContainer').prepend($div);
+                isOdd = !isOdd;
             }
 
             function watchdog(time) {
@@ -87,6 +83,10 @@
         </script>
     </head>
     <body>
+        <?php
+        require_once '../config.php';
+        printf('<h1 class="hashTag">%s</h1>', $config['track']);
+        ?>
         <div id="tweetContainer"></div>
         <iframe src="read.php" style="display: none;">
     </body>
