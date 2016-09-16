@@ -4,25 +4,46 @@
         <title>Teema16</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css?family=Libre+Franklin:400,700&subset=latin-ext" rel="stylesheet">
         <link href='css/main.css' rel='stylesheet' type='text/css' />
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script>
             var isOdd = true;
+            function showTweet($div) {
+                $div.css({
+                    'display': 'block',
+                    'transition-duration': '2s, 1s',
+                    'transition-delay': '0, 2s'
+                });
+
+                $div.css({
+                    'margin-top': '10px',
+                    'opacity': 1
+                });
+            }
+
             function newTweet(data) {
                 var text;
-                console.log(data);
-                var $div = $(
-                    '<div/>',
-                    {'id': data.id, 'class': 'tweet ' + (isOdd?'odd':'even')}
-                );
+                //console.log(data);
 
-                var $content = $('<span/>', {'class': 'content'});
                 if (data.hasOwnProperty('retweeted_status')) {
-                    text = data.retweeted_status.text;
+                    return;
                 } else {
                     text = data.text;
                 }
+
+                var $div = $(
+                    '<div/>',
+                    {
+                        'id': data.id,
+                        'class': 'tweet ' + (isOdd?'odd':'even'),
+                        'style': 'display: none; opacity: 0; margin-top: -100px;'
+                    }
+                );
+
+                var $content = $('<span/>', {'class': 'content'});
+                
 
                 $.each(data.entities.hashtags, function(index, hashtag) {
                     text = text.replace(
@@ -47,30 +68,38 @@
                     '<img/>',
                     {
                         'src': data.user.profile_image_url_https,
-                        'class': 'usrImage',
-                        'onload': function () {console.log($div)}
+                        'class': 'usrImage'
                     }
                 );
 
                 $div.append($userImage, $user, $content, $('<span/>', {'class': 'tick'}));
+                $('#tweetContainer').prepend($div);
 
                 if (data.hasOwnProperty('entities') &&
                     data.entities.hasOwnProperty('media')) {
                     imgUrl = data.entities.media[0].media_url_https;
-
+                    $div.css({
+                        'margin-top': '-300px',
+                    });
                     var $mediaImage = $(
                         '<img/>',
-                        {'src': imgUrl, 'class': 'mediaImage'}
+                        {
+                            'src': imgUrl,
+                            'class': 'mediaImage',
+                            'onload': showTweet($div)
+                        }
                     );
                     $div.append($mediaImage);
+                } else {
+                    showTweet($div);
                 }
 
-                $('#tweetContainer').prepend($div);
+                
                 isOdd = !isOdd;
             }
 
             function watchdog(time) {
-                console.debug(time);
+                //console.debug(time);
             }
 
             window.addEventListener('message', function(event) {

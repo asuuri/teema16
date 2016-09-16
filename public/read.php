@@ -22,8 +22,6 @@ foreach ($tweets as $tweet) { ?>
 <?php
 }
 
-die;
-
 if ($config['fifo_path']) {
     $handle = fopen($config['fifo_path'], 'r');
 

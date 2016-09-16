@@ -3,28 +3,50 @@ $tweetBackground: #fff;
 $textColor: #222;
 $userNameColor: #b1c1ce;
 
+html {
+   height: 100%;
+   display: block;
+   position: relative;
+   padding: 0;
+   margin: 0;
+}
 body, html {
     min-height: 100%;
     display: block;
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: 'Libre Franklin',Helvetica,Arial,sans-serif;
     background-color: $background;
     overflow: hidden;
+    padding: 0;
+    margin: 0;
 }
 
 .hashTag {
     display: block;
     color: $tweetBackground;
     text-align: center;
+    transform: rotate(-90deg);
+    position: absolute;
+    left: -100px;
+    top: 240px;
+    line-height: 40px;
+    font-size: 70px;
+}
+
+#tweetContainer {
+    padding: 10px 10px 10px 130px;
 }
 
 .tweet {
     color: $textColor;
     font-size: 25px;
-    padding: 10px;
+    padding: 12px 12px 12px 18px;
     background-color: $tweetBackground;
-    margin: 18px 10px 80px 10px;
-    border-radius: 12px;
+    margin: 10px 10px 90px 10px;
+    border-radius: 25px;
     position: relative;
+    transition-property: margin, opacity;
+    transition-duration: 0, 0;
+    transition-timing-function: ease-out, ease-out;
 
     .hashtag, .mentioned {
         color: #0084B4;
@@ -41,6 +63,9 @@ body, html {
         position: absolute;
         bottom: -60px;
         border-radius: 5px;
+        height: 48px;
+        width: 48px;
+        display: block;
     }
 
     .tick {
@@ -53,6 +78,8 @@ body, html {
     }
 
     &.odd {
+        margin-left: 130px;
+
         .usrImage {
             right: 88px;
         }
@@ -65,10 +92,13 @@ body, html {
             background: linear-gradient(118deg, white 0%, white 57%, rgba(255, 255, 255, 0) 59%, rgba(255, 255, 255, 0) 100%);
             border-radius: 0px 0px 0px 2px;
             right: 50px;
+            transform: rotate(10deg);
         }
     }
 
     &.even {
+        margin-right: 130px;
+
         .usrImage {
             left: 88px;
         }
@@ -81,6 +111,7 @@ body, html {
             background: linear-gradient(240deg, white 0%, white 57%, rgba(255, 255, 255, 0) 59%, rgba(255, 255, 255, 0) 100%);
             border-radius: 0px 0px 2px 0px;
             left: 50px;
+            transform: rotate(-10deg);
         }
     }
 

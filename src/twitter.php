@@ -125,13 +125,13 @@ class Twitter {
 
   private function makeFIFO() {
     if (isset($this->config['fifo_path'])) {
-        if (is_file($config['fifo_path'])) {
-            unlink($config['fifo_path']);
+        if (is_file($this->config['fifo_path'])) {
+            unlink($this->config['fifo_path']);
         }
 
-        posix_mkfifo($config['fifo_path'], 0666);
+        posix_mkfifo($this->config['fifo_path'], 0666);
 
-        $this->fifoFile = fopen($config['fifo_path'], "w");
+        $this->fifoFile = fopen($this->config['fifo_path'], "w");
         stream_set_blocking($this->fifoFile, false);
     }
   }
