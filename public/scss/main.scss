@@ -69,11 +69,12 @@ body, html {
     }
 
     .tick {
-        $tickHeight: 48px;
+        $tickHeight: 35px;
+
         display: block;
         position: absolute;
         height: $tickHeight;
-        width: 25px;
+        width: 23px;
         bottom: ($tickHeight - 10px) * -1
     }
 
