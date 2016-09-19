@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+<?php
+
+set_time_limit(1000);
+
+?><!DOCTYPE html>
 <html>
     <head>
         <title>Teema16</title>
@@ -7,30 +11,31 @@
     </head>
     <body>
 <?php
-
 require_once '../config.php';
-require_once '../src/twitter.php';
-$time = time();
-$twitter = new Twitter($config);
 
-$tweets = array_reverse($twitter->readFirstOnes(7));
+if (!isset($_GET['clean'])) {
+    require_once '../src/twitter.php';
+    $time = time();
+    $twitter = new Twitter($config);
 
-foreach ($tweets as $tweet) { ?>
-        <script>
-        parent.postMessage(<?php echo json_encode($tweet); ?>, '*');
-        </script>
-<?php
+    $tweets = array_reverse($twitter->readFirstOnes(20));
+
+    foreach ($tweets as $tweet) { ?>
+            <script>
+            parent.postMessage(<?php echo json_encode($tweet); ?>, '*');
+            </script>
+    <?php
+    }
 }
-
 
 if ($config['fifo_path']) {
     $handle = fopen($config['fifo_path'], 'r');
 
     if ($handle) {
-        stream_set_blocking($handle, false);
+        stream_set_blocking($handle, 0);
+        stream_set_timeout($handle, 0, 500);
     } else {
         $err = error_get_last();
-        var_dump($err);
         echo "Unable to open fifo. </body></html>";
         die;
     }
@@ -41,7 +46,8 @@ if ($config['fifo_path']) {
 
 if ($handle) {
     while (true) { 
-        $buffer = fgets($handle); 
+        $buffer = fgets($handle);
+        echo '<p>Readed!</p>';
         if ($buffer) { ?>
         
         <script>
@@ -49,32 +55,16 @@ if ($handle) {
             echo trim($buffer);
         ?>, '*');
         </script>
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
-        
-        
-        
-        
-        
-        
 <?php
         }
 
-        //sleep(0.2);
+        sleep(0.1);
 
         $newTime = time();
         if ($newTime - $time >= 1) {
             $time = $newTime; ?>
-       
+
+        <p>Bark!</p>
         <script>
         parent.postMessage({'watchdog':<?php
             echo $newTime;

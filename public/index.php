@@ -10,22 +10,27 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script>
             var isOdd = true;
+            var tweets = [];
+            var barkTime = Date.now();
             function showTweet($div) {
-                $div.css({
-                    'margin-top': '-' + ($div.outerHeight(true) - 10) + 'px'
-                });
-                
-                $div.animate({
-                    'margin-top': '10px'
-                },{
-                    'duration': 1000
-                });
-                
+                $('#tweetContainer').prepend($div);
 
                 $div.css({
-                    'opacity': 1
+                    'margin-top': '-' + ($div.outerHeight(true) - 20) + 'px'
                 });
-            }
+                
+                $div.animate(
+                    {
+                        'margin-top': '10px'
+                    },
+                    {
+                        'duration': 500,
+                        'always': function() {
+                            $div.css({'opacity': 1});
+                        }
+                    }
+                );
+            };
 
             function newTweet(data) {
                 var text;
@@ -77,7 +82,6 @@
                 );
 
                 $div.append($userImage, $user, $content, $('<span/>', {'class': 'tick'}));
-                $('#tweetContainer').prepend($div);
 
                 if (data.hasOwnProperty('entities') &&
                     data.entities.hasOwnProperty('media')) {
@@ -89,27 +93,49 @@
                             'class': 'mediaImage'
                         }
                     );
-                    $mediaImage.on('load', function() { showTweet($div) });
+                    $mediaImage.on('load', function() { tweets.push($div); });
                     $div.append($mediaImage);
                 } else {
-                    showTweet($div);
+                    tweets.push($div);
                 }
 
+                
                 
                 isOdd = !isOdd;
             }
 
-            function watchdog(time) {
-                //console.debug(time);
+            function watchdog() {
+                console.log('bark!');
+                barkTime = Date.now();
             }
 
             window.addEventListener('message', function(event) {
                 if (event.data.hasOwnProperty('watchdog')) {
-                    watchdog(event.data.watchdog);
+                    watchdog();
                 } else {
                     newTweet(event.data);
                 }
             });
+
+            setInterval(
+                function() {
+                    if (tweets[0]) {
+                        showTweet(tweets[0]);
+                        tweets.splice(0, 1);
+                    }
+                },
+                100
+            );
+
+            setInterval(
+                function() {
+                    var delta = Date.now() - barkTime;
+                    if (delta > 1500) {
+                        console.log('reload');
+                    }
+                },
+                1000
+            );
         </script>
     </head>
     <body>
@@ -118,6 +144,6 @@
         printf('<h1 class="hashTag">%s</h1>', $config['track']);
         ?>
         <div id="tweetContainer"></div>
-        <iframe src="read.php" style="display: none;">
+        <iframe src="read.php?clean" style="display: none;">
     </body>
 </html>
