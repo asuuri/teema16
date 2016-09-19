@@ -12,13 +12,17 @@
             var isOdd = true;
             function showTweet($div) {
                 $div.css({
-                    'display': 'block',
-                    'transition-duration': '2s, 1s',
-                    'transition-delay': '0, 2s'
+                    'margin-top': '-' + ($div.outerHeight(true) - 10) + 'px'
                 });
+                
+                $div.animate({
+                    'margin-top': '10px'
+                },{
+                    'duration': 1000
+                });
+                
 
                 $div.css({
-                    'margin-top': '10px',
                     'opacity': 1
                 });
             }
@@ -38,7 +42,7 @@
                     {
                         'id': data.id,
                         'class': 'tweet ' + (isOdd?'odd':'even'),
-                        'style': 'display: none; opacity: 0; margin-top: -100px;'
+                        'style': 'opacity: 0;'
                     }
                 );
 
@@ -77,18 +81,15 @@
 
                 if (data.hasOwnProperty('entities') &&
                     data.entities.hasOwnProperty('media')) {
-                    imgUrl = data.entities.media[0].media_url_https;
-                    $div.css({
-                        'margin-top': '-300px',
-                    });
+                    var imgUrl = data.entities.media[0].media_url_https;
                     var $mediaImage = $(
                         '<img/>',
                         {
                             'src': imgUrl,
-                            'class': 'mediaImage',
-                            'onload': showTweet($div)
+                            'class': 'mediaImage'
                         }
                     );
+                    $mediaImage.on('load', function() { showTweet($div) });
                     $div.append($mediaImage);
                 } else {
                     showTweet($div);

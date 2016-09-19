@@ -140,7 +140,7 @@ class Twitter {
     $this->makeFIFO();
     $url = parse_url($this->requestUrl . rawurlencode($this->track));
     $request = $this->buildRequest($url);
-    $counter = 100;
+    $counter = 1000;
 
     $scheme = $url['scheme'] === 'https'?'ssl://':'';
     $port = $url['scheme'] === 'https'?443:80;
