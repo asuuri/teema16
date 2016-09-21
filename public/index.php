@@ -4,7 +4,7 @@
         <title>Teema16</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://fonts.googleapis.com/css?family=Libre+Franklin:400,700&subset=latin-ext" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Material+Icons|Libre+Franklin:400,700&subset=latin-ext" rel="stylesheet">
         <link href='css/main.css' rel='stylesheet' type='text/css' />
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
@@ -18,7 +18,7 @@
                 $div.css({
                     'margin-top': '-' + ($div.outerHeight(true) - 20) + 'px'
                 });
-                
+
                 $div.animate(
                     {
                         'margin-top': '10px'
@@ -38,6 +38,8 @@
 
                 if (data.hasOwnProperty('retweeted_status')) {
                     return;
+                } else if (document.getElementById(data.id)) {
+                    return;
                 } else {
                     text = data.text;
                 }
@@ -52,7 +54,7 @@
                 );
 
                 var $content = $('<span/>', {'class': 'content'});
-                
+
 
                 $.each(data.entities.hashtags, function(index, hashtag) {
                     text = text.replace(
@@ -81,7 +83,9 @@
                     }
                 );
 
-                $div.append($userImage, $user, $content, $('<span/>', {'class': 'tick'}));
+                var $retweets = $('<span/>', {'class': 'retweets', 'text': 0});
+
+                $div.append($userImage, $user, $content, $retweets, $('<span/>', {'class': 'tick'}));
 
                 if (data.hasOwnProperty('entities') &&
                     data.entities.hasOwnProperty('media')) {
@@ -99,8 +103,8 @@
                     tweets.push($div);
                 }
 
-                
-                
+
+
                 isOdd = !isOdd;
             }
 
@@ -109,9 +113,18 @@
                 barkTime = Date.now();
             }
 
+            function reload() {
+                var iframe = document.getElementById('iframeWindow');
+                iframe.contentWindow.location.reload();
+                console.log('Reload!');
+            }
+
             window.addEventListener('message', function(event) {
                 if (event.data.hasOwnProperty('watchdog')) {
                     watchdog();
+                } else if (event.data.hasOwnProperty('reload_frame')) {
+                    console.log('Command related reload');
+                    reload();
                 } else {
                     newTweet(event.data);
                 }
@@ -131,7 +144,8 @@
                 function() {
                     var delta = Date.now() - barkTime;
                     if (delta > 1500) {
-                        console.log('reload');
+                        barkTime = Date.now();
+                        reload();
                     }
                 },
                 1000
@@ -144,6 +158,6 @@
         printf('<h1 class="hashTag">%s</h1>', $config['track']);
         ?>
         <div id="tweetContainer"></div>
-        <iframe src="read.php?clean" style="display: none;">
+        <iframe id="iframeWindow" src="read.php" style="display: none;">
     </body>
 </html>

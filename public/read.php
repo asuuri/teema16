@@ -1,6 +1,8 @@
 <?php
 
 set_time_limit(1000);
+$endTime = time() + 100;
+//$endTime = time() + 600; //10 mins
 
 ?><!DOCTYPE html>
 <html>
@@ -12,21 +14,21 @@ set_time_limit(1000);
     <body>
 <?php
 require_once '../config.php';
+require_once '../src/twitter.php';
 
-if (!isset($_GET['clean'])) {
-    require_once '../src/twitter.php';
-    $time = time();
-    $twitter = new Twitter($config);
+$time = time();
+$twitter = new Twitter($config);
 
-    $tweets = array_reverse($twitter->readFirstOnes(20));
+$tweets = array_reverse($twitter->readFirstOnes(20));
 
-    foreach ($tweets as $tweet) { ?>
-            <script>
-            parent.postMessage(<?php echo json_encode($tweet); ?>, '*');
-            </script>
-    <?php
-    }
-}
+foreach ($tweets as $tweet): ?>
+        <script>
+            if (parent) {
+                parent.postMessage(<?php echo json_encode($tweet); ?>, '*');
+            }
+        </script>
+<?php
+endforeach;
 
 if ($config['fifo_path']) {
     $handle = fopen($config['fifo_path'], 'r');
@@ -45,30 +47,35 @@ if ($config['fifo_path']) {
 }
 
 if ($handle) {
-    while (true) { 
+    $newTime = time();
+    $time = $newTime;
+    while ($newTime < $endTime) {
+
+        echo
         $buffer = fgets($handle);
-        echo '<p>Readed!</p>';
         if ($buffer) { ?>
-        
+
         <script>
-        parent.postMessage(<?php
-            echo trim($buffer);
-        ?>, '*');
+        if (parent) {
+            parent.postMessage(<?php
+                echo trim($buffer);
+            ?>, '*');
+        }
         </script>
 <?php
         }
 
-        sleep(0.1);
-
-        $newTime = time();
-        if ($newTime - $time >= 1) {
+        usleep(1000);
+        if (($newTime - $time) >= 1) {
             $time = $newTime; ?>
 
         <p>Bark!</p>
         <script>
-        parent.postMessage({'watchdog':<?php
-            echo $newTime;
-        ?>}, '*');
+        if (parent) {
+            parent.postMessage({'watchdog':<?php
+                echo $newTime;
+            ?>}, '*');
+        }
         </script>
 
 
@@ -89,9 +96,16 @@ if ($handle) {
         }
 
         flush();
+        $newTime = time();
     }
 }
 
 fclose($handle);?>
+    <p>Bye!</p>
+    <script>
+    if (parent) {
+        parent.postMessage({'reload_frame':true}, '*');
+    }
+    </script>
 </body>
 </html>
