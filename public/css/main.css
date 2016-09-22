@@ -60,6 +60,18 @@ body, html {
     height: 35px;
     width: 23px;
     bottom: -25px; }
+  .tweet .retweets {
+    position: absolute;
+    bottom: -40px;
+    left: 30px;
+    padding-left: 40px;
+    background-image: url("../images/retweets.png");
+    background-repeat: no-repeat;
+    background-size: 35px;
+    color: #b5b5b5;
+    font-size: 25px;
+    font-weight: bold;
+    line-height: 35px; }
   .tweet.odd {
     margin-left: 130px; }
     .tweet.odd .usrImage {
@@ -82,6 +94,11 @@ body, html {
       border-radius: 0px 0px 2px 0px;
       left: 50px;
       transform: rotate(-10deg); }
+    .tweet.even .retweets {
+      padding: 0 40px 0 0;
+      right: 30px;
+      left: auto;
+      background-position: 100% 0; }
   .tweet .mediaImage {
     max-height: 200px;
     display: block;

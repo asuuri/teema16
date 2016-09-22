@@ -34,9 +34,12 @@
 
             function newTweet(data) {
                 var text;
-                //console.log(data);
 
                 if (data.hasOwnProperty('retweeted_status')) {
+                    var $retDiv = $('#' + data.retweeted_status.id + ' .retweets');
+                    if($retDiv.length) {
+                        $retDiv.text(data.retweeted_status.retweet_count);
+                    }
                     return;
                 } else if (document.getElementById(data.id)) {
                     return;
@@ -83,7 +86,7 @@
                     }
                 );
 
-                var $retweets = $('<span/>', {'class': 'retweets', 'text': 0});
+                var $retweets = $('<span/>', {'class': 'retweets', 'text': data.retweet_count});
 
                 $div.append($userImage, $user, $content, $retweets, $('<span/>', {'class': 'tick'}));
 
@@ -109,21 +112,18 @@
             }
 
             function watchdog() {
-                console.log('bark!');
                 barkTime = Date.now();
             }
 
             function reload() {
                 var iframe = document.getElementById('iframeWindow');
                 iframe.contentWindow.location.reload();
-                console.log('Reload!');
             }
 
             window.addEventListener('message', function(event) {
                 if (event.data.hasOwnProperty('watchdog')) {
                     watchdog();
                 } else if (event.data.hasOwnProperty('reload_frame')) {
-                    console.log('Command related reload');
                     reload();
                 } else {
                     newTweet(event.data);
@@ -143,7 +143,7 @@
             setInterval(
                 function() {
                     var delta = Date.now() - barkTime;
-                    if (delta > 1500) {
+                    if (delta > 2500) {
                         barkTime = Date.now();
                         reload();
                     }
