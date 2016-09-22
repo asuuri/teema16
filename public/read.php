@@ -2,7 +2,7 @@
 
 set_time_limit(1000);
 
-$endTime = time() + 600; //10 mins
+$endTime = time() + 60; //1 min
 
 ?><!DOCTYPE html>
 <html>
@@ -126,7 +126,7 @@ if ($handle) {
 <?php
         }
 
-        usleep(1000);
+        usleep(100000);
         if (($newTime - $time) >= 1) {
             $time = $newTime; ?>
 
