@@ -1,8 +1,8 @@
 <?php
 
 set_time_limit(1000);
-$endTime = time() + 100;
-//$endTime = time() + 600; //10 mins
+
+$endTime = time() + 600; //10 mins
 
 ?><!DOCTYPE html>
 <html>
