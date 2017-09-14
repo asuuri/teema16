@@ -1,11 +1,14 @@
+<?php
+require_once '../config.php';
+?>
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Teema16</title>
+        <title><?php echo $config['track']; ?></title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://fonts.googleapis.com/css?family=Material+Icons|Libre+Franklin:400,700&subset=latin-ext" rel="stylesheet">
-        <link href='css/main.css' rel='stylesheet' type='text/css' />
+        <link href='css/main.css?q=7984565147885425' rel='stylesheet' type='text/css' />
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script>
@@ -33,7 +36,12 @@
             };
 
             function newTweet(data) {
+                console.log(data);
                 var text;
+
+                if (data.full_text == '') {
+                    return;
+                }
 
                 if (data.hasOwnProperty('retweeted_status')) {
                     var $retDiv = $('#' + data.retweeted_status.id + ' .retweets');
@@ -43,8 +51,12 @@
                     return;
                 } else if (document.getElementById(data.id)) {
                     return;
-                } else {
+                } else if(data.full_text){
+                    text = data.full_text;
+                } else if(data.text) {
                     text = data.text;
+                } else {
+                    return;
                 }
 
                 var $div = $(
@@ -154,10 +166,9 @@
     </head>
     <body>
         <?php
-        require_once '../config.php';
         printf('<h1 class="hashTag">%s</h1>', $config['track']);
         ?>
         <div id="tweetContainer"></div>
-        <iframe id="iframeWindow" src="read.php" style="display: none;">
+        <iframe id="iframeWindow" src="read.php?q=12123213" style="display: none;">
     </body>
 </html>

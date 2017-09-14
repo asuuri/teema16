@@ -2,7 +2,7 @@
 
 set_time_limit(1000);
 
-$endTime = time() + 60; //1 min
+$endTime = time() + (3*60); //1 mins
 
 ?><!DOCTYPE html>
 <html>
@@ -50,8 +50,16 @@ if ($handle) {
     $newTime = time();
     $time = $newTime;
     while ($newTime < $endTime) {
+        ?>
 
-        echo
+        <script>
+        if (parent) {
+            parent.postMessage({'watchdog':<?php
+                echo $newTime;
+            ?>}, '*');
+        }
+        </script><?php
+
         $buffer = fgets($handle);
         if ($buffer) { ?>
 
@@ -126,18 +134,18 @@ if ($handle) {
 <?php
         }
 
-        usleep(100000);
+        usleep(50000);
         if (($newTime - $time) >= 1) {
             $time = $newTime; ?>
 
-        <p>Bark!</p>
+        <!--<p>Bark!</p>
         <script>
         if (parent) {
             parent.postMessage({'watchdog':<?php
                 echo $newTime;
-            ?>}, '*');
+            ?>, 'A': <?php echo $time; ?>}, '*');
         }
-        </script>
+        </script>-->
 
 
 
@@ -205,6 +213,11 @@ if ($handle) {
         flush();
         $newTime = time();
     }
+} else {?>
+    <script>
+    console.log('No handle available.');
+    </script>
+    <?php
 }
 
 fclose($handle);?>

@@ -1,7 +1,7 @@
 <?php
 
 class Twitter {
-  
+
   const CRLF = "\r\n";
   const BUFFER_LENGTH = 8192;
 
@@ -26,19 +26,19 @@ class Twitter {
 
   public function __construct($config = array()) {
     if (isset($config['consumerKey'])) {
-      $this->consumerKey = $config['consumerKey'];  
+      $this->consumerKey = $config['consumerKey'];
     }
 
     if (isset($config['consumerSecret'])) {
-      $this->consumerSecret = $config['consumerSecret'];  
+      $this->consumerSecret = $config['consumerSecret'];
     }
 
     if (isset($config['accessKey'])) {
-      $this->accessKey = $config['accessKey'];  
+      $this->accessKey = $config['accessKey'];
     }
 
     if (isset($config['accessSecret'])) {
-      $this->accessSecret = $config['accessSecret'];  
+      $this->accessSecret = $config['accessSecret'];
     }
 
     if (isset($config['track'])) {
@@ -131,7 +131,7 @@ class Twitter {
 
         posix_mkfifo($this->config['fifo_path'], 0666);
 
-        $this->fifoFile = fopen($this->config['fifo_path'], "w");
+        $this->fifoFile = fopen($this->config['fifo_path'], "w+");
         stream_set_blocking($this->fifoFile, false);
     }
   }
@@ -162,6 +162,7 @@ class Twitter {
     $queryArray = array(
       'count' => $count,
       'result_type' => 'recent',
+      'tweet_mode' => 'extended',
       'q' => $this->track,
     );
     ksort($queryArray);
@@ -251,7 +252,7 @@ class Twitter {
             if (preg_match('/^[1-9][0-9]*$/', trim($dataLine))) {
                 $this->sendJson();
                 $this->jsonLength = $dataLine - 1;
-                
+
             } else {
                 $this->jsonLength -= strlen($dataLine);
                 $this->json .= trim($dataLine);
@@ -265,6 +266,8 @@ class Twitter {
 
   private function sendJson() {
       if ($this->json && $this->fifoFile) {
+          echo "Data received. Proxying it.\n";
+          echo $this->json . "\n";
           fwrite($this->fifoFile, $this->json . "\n");
       }
       $this->json = '';

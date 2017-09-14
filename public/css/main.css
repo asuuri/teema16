@@ -16,12 +16,14 @@ body, html {
 
 .hashTag {
   display: block;
-  color: #fff;
+  color: #ffb09d;
   text-align: center;
   transform: rotate(-90deg);
   position: absolute;
-  left: -110px;
-  top: 240px;
+  left: 20px;
+  top: 60%;
+  height: 1px;
+  width: 1px;
   line-height: 40px;
   font-size: 70px; }
 
@@ -45,7 +47,7 @@ body, html {
   .tweet .user {
     position: absolute;
     bottom: -40px;
-    color: #b1c1ce; }
+    color: #a6b9cc; }
   .tweet .usrImage {
     position: absolute;
     bottom: -60px;
@@ -65,10 +67,10 @@ body, html {
     bottom: -40px;
     left: 30px;
     padding-left: 40px;
-    background-image: url("../images/retweets.png");
+    background-image: url("../images/retweet.svg");
     background-repeat: no-repeat;
     background-size: 35px;
-    color: #b5b5b5;
+    color: #a6b9cc;
     font-size: 25px;
     font-weight: bold;
     line-height: 35px; }

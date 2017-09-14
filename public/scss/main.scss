@@ -1,7 +1,7 @@
 $background: #333;
 $tweetBackground: #fff;
 $textColor: #222;
-$userNameColor: #b1c1ce;
+$userNameColor: #a6b9cc;
 
 html {
    height: 100%;
@@ -22,12 +22,14 @@ body, html {
 
 .hashTag {
     display: block;
-    color: $tweetBackground;
+    color: #ffb09d;
     text-align: center;
     transform: rotate(-90deg);
     position: absolute;
-    left: -110px;
-    top: 240px;
+    left: 20px;
+    top: 60%;
+    height: 1px;
+    width: 1px;
     line-height: 40px;
     font-size: 70px;
 }
@@ -85,14 +87,13 @@ body, html {
         bottom: -40px;
         left: 30px;
         padding-left: 40px;
-        background-image: url("../images/retweets.png");
+        background-image: url("../images/retweet.svg");
         background-repeat: no-repeat;
         background-size: 35px;
-        color: #b5b5b5;
+        color: $userNameColor;
         font-size: 25px;
         font-weight: bold;
         line-height: 35px;
-
     }
 
     &.odd {
